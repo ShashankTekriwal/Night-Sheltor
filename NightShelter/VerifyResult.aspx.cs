@@ -114,12 +114,14 @@ namespace NightShelter
 
             string connStr = WebConfigurationManager.ConnectionStrings["localConnection"].ConnectionString;
             MySqlConnection conn = new MySqlConnection(connStr);
-            string query = String.Format("SELECT firDataPath from users WHERE gender = {0} AND fingerID = {1}",
-                gender, fingerID);
+            string storeProc = "verifyProc";
             try
             {
                 conn.Open();
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                MySqlCommand cmd = new MySqlCommand(storeProc, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@gender", gender);
+                cmd.Parameters.AddWithValue("@fingerID", fingerID);
                 MySqlDataReader rdr = cmd.ExecuteReader();
                 
                 while (rdr.Read())
@@ -177,12 +179,17 @@ namespace NightShelter
                 Console.WriteLine("Connecting to MySQL...");
                 conn.Open();
                 string ran = RandomString(32);
-                string storeProc = "demoProc";
+                string storeProc = "verifyProc";
                 MySqlCommand cmd = new MySqlCommand(storeProc, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@nm", ran);
-                cmd.Parameters.AddWithValue("@dt", DateTime.Today);
-                cmd.ExecuteNonQuery();
+                cmd.Parameters.AddWithValue("@gender", 1);
+                cmd.Parameters.AddWithValue("@fingerID", 1);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                message = "";
+                while (rdr.Read())
+                {
+                    message += rdr[0] + "<br>";
+                }
                 // Perform database operations
             }
             catch (Exception ex)
