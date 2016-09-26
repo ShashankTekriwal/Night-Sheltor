@@ -43,6 +43,13 @@
 <input type="submit" value="Click here to verify with your fingerprint"/>
 </p>
 </form>
+
+<div id ="resDiv" runat="server">
+    <%= message %>
+</div>
+<div id="errDiv" runat="server">
+    <%= error %>
+</div>
 </center>
     <br />
     <br />
