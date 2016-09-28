@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Configuration;
@@ -78,6 +79,10 @@ namespace NightShelter
                         detail.paddress = rdr[4] == System.DBNull.Value ? "" : (string)rdr[4];
                         detail.gender = FingerPrint.getGender((int)rdr[5]);
                         detail.fingerID = FingerPrint.getFingerName((int)rdr[6]);
+
+                        DateTime dt = DateTime.ParseExact(detail.dob, "M/d/yyyy hh:mm:ss tt", CultureInfo.InvariantCulture);
+                        detail.dob = dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
                         temp = false;
                     }
                     string t1 = rdr[7].ToString();
