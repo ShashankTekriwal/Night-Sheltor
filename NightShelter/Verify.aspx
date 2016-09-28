@@ -22,16 +22,8 @@
 <br/>
 <br/>
 <br/>
-<form action="VerifyResult.aspx" name="MainForm" method="post" onsubmit="return capture('firData')">
-<input type="hidden" id="firData" name="firData"/>
-    <p>First Name</p>
-    <input type="text" name ="fname" value="demo" />
-    <p>Last Name</p>
-    <input type="text" name ="lname" value ="demo" />
-    <p>Date of birth</p>
-    <input type="text" name ="dob" value="1994-12-01" />
-    <p>Per Address</p>
-    <input type="text" name ="pAddress" value="demo" />
+<form action="Regist.aspx" name="MainForm" method="post" onsubmit="return capture('firData');">
+    <input type="hidden" id="firData" name="firData"/>
     <p>Gender</p>
     <input type="text" name ="gender" value ="1" />
     <p>Location</p>

@@ -13,7 +13,7 @@ namespace NightShelter
     {
         protected string message;
         protected string errMessage;
-        protected string baseDirectory = System.IO.Path.Combine(HttpContext.Current.Server.MapPath("."), "db");
+        //protected string baseDirectory = System.IO.Path.Combine(HttpContext.Current.Server.MapPath("."), "db");
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -75,7 +75,7 @@ namespace NightShelter
             if (uid.Equals("Not Found"))
             {
                 uid = FingerPrint.getUID(32);
-                string fileToCreate = System.IO.Path.Combine(baseDirectory, uid + ".fir");
+                string fileToCreate = System.IO.Path.Combine(FingerPrint.baseDirectory, uid + ".fir");
                 if (!System.IO.File.Exists(fileToCreate))
                 {
                     using (System.IO.FileStream fs = System.IO.File.Create(fileToCreate))
@@ -111,7 +111,7 @@ namespace NightShelter
             catch (Exception ex)
             {
                 message = "unsuccessful";
-                errMessage = ex.ToString();
+                errMessage = ex.ToString().Replace('\n','~');
             }
             string url = String.Format("Verify.aspx?result={0}&err={1}", message, errMessage);
             Response.Redirect(url);

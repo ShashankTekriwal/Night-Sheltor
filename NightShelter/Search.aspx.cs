@@ -41,28 +41,13 @@ namespace NightShelter
             }
         }
 
-        class Details
-        {
-            public string firstName;
-            public string lastName;
-            public string dob;
-            public string paddress;
-            public string gender;
-            public string fingerID;
-            public Dictionary<string, string> places;
-            public Details()
-            {
-                places = new Dictionary<string, string>();
-            }
-        }
-
         private void showHistory(string uid)
         {
             string connStr = WebConfigurationManager.ConnectionStrings["localConnection"].ConnectionString;
             MySqlConnection conn = new MySqlConnection(connStr);
             Dictionary<string, string> details = new Dictionary<string, string>();
 
-            Details detail = new Details();
+            FingerPrint.Details detail = new FingerPrint.Details();
 
             try
             {
@@ -71,6 +56,7 @@ namespace NightShelter
                 MySqlCommand cmd = new MySqlCommand(storeProc, conn);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@firData", uid);
+                cmd.Parameters.AddWithValue("lim", Int32.MaxValue);
                 MySqlDataReader rdr = cmd.ExecuteReader();
                 //rdr[1] fName; rdr[2] lName; rdr[3] dob; rdr[4] paddress;
                 //rdr[5] gender; rdr[6]fingerID; rdr[7] dateTime; rdr[8] location;

@@ -11,7 +11,24 @@ namespace NightShelter
 {
     public partial class FingerPrint
     {
-        protected static string baseDirectory = System.IO.Path.Combine(HttpContext.Current.Server.MapPath("."), "db");
+        public static string baseDirectory = System.IO.Path.Combine(HttpContext.Current.Server.MapPath("."), "db");
+
+        public class Details
+        {
+            public string firstName;
+            public string lastName;
+            public string dob;
+            public string paddress;
+            public string gender;
+            public string fingerID;
+            public string uid;
+            public Dictionary<string, string> places;
+            public Details()
+            {
+                places = new Dictionary<string, string>();
+            }
+        }
+
         public static string verify(string firData, string gender, string fingerID)
         {
             string firTestData;
@@ -84,6 +101,66 @@ namespace NightShelter
             return "Not Found";
         }
 
+        internal static string createUIDFile(string firData)
+        {
+            string uid = getUID(32);
+            string fileToCreate = System.IO.Path.Combine(baseDirectory, uid + ".fir");
+            if (!System.IO.File.Exists(fileToCreate))
+            {
+                using (System.IO.FileStream fs = System.IO.File.Create(fileToCreate))
+                {
+                    int firDataSize = firData.Length;
+                    System.IO.StreamWriter sw = new System.IO.StreamWriter(fs);
+                    sw.WriteLine(uid);
+                    sw.WriteLine(firDataSize);
+                    sw.WriteLine(firData);
+                    sw.Close();
+                }
+            }
+            return uid;
+        }
+
+        internal static void register(Details detail, string location)
+        {
+            DateTime? dateOfBirthF;
+            if (detail.dob != null)
+            {
+                dateOfBirthF = DateTime.ParseExact(detail.dob, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                dateOfBirthF = null;
+            }
+
+            int gender, fingerID = -1;
+            Int32.TryParse(detail.gender, out gender);
+            Int32.TryParse(detail.fingerID, out fingerID);
+
+            string connStr = WebConfigurationManager.ConnectionStrings["localConnection"].ConnectionString;
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                string storeProc = "registerProc";
+                conn.Open();
+                MySqlCommand cmd = new MySqlCommand(storeProc, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@fname", detail.firstName);
+                cmd.Parameters.AddWithValue("@lname", detail.lastName);
+                cmd.Parameters.AddWithValue("@dob", dateOfBirthF);
+                cmd.Parameters.AddWithValue("@paddress", detail.paddress);
+                cmd.Parameters.AddWithValue("@gender", gender);
+                cmd.Parameters.AddWithValue("@fingerID", fingerID);
+                cmd.Parameters.AddWithValue("@location", location);
+                cmd.Parameters.AddWithValue("@firDataPath", detail.uid);
+                cmd.ExecuteNonQuery();
+            }
+            catch(Exception exp)
+            {
+
+            }
+        }
+
         public static string getGender(int g)
         {
             return g == 1 ? "Male" : "Female";
@@ -91,28 +168,28 @@ namespace NightShelter
 
         public static string getFingerName(int fingerID)
         {
-            string s;
+            string s = "{0} ";
             switch (fingerID)
             {
                 case 1:
                 case 6:
-                    s = "{0} Thumb";
+                    s += "Thumb";
                     break;
                 case 2:
                 case 7:
-                    s = "{0} Index Finger";
+                    s += "Index Finger";
                     break;
                 case 3:
                 case 8:
-                    s = "{0} Middle Finger";
+                    s += "Middle Finger";
                     break;
                 case 4:
                 case 9:
-                    s = "{0} Ring Finger";
+                    s += "Ring Finger";
                     break;
                 case 5:
                 case 10:
-                    s = "{0} Baby Finger";
+                    s += "Baby Finger";
                     break;
                 default:
                     s = "Unknown";
