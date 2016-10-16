@@ -18,15 +18,20 @@ namespace NightShelter
         protected string detailJson;
         protected void Page_Load(object sender, EventArgs e)
         {
-            //result = "";
+            result = "";
+            resultDiv.InnerHtml = result;
+            resultDiv.Attributes["class"] = "";
         }
         protected void search(object sender, EventArgs e)
         {
             string gender = "";
             string fingerID = "";
 
-            gender = f_gender.Text;
-            fingerID = f_fingerID.Text;
+            if (f_gender.SelectedItem != null)
+            {
+                gender = f_gender.SelectedItem.Value.ToString();
+            }
+            fingerID = f_fingerID.SelectedItem.Value.ToString();
             string firData = f_firData.Value;
 
             string uid = FingerPrint.verify(firData, gender, fingerID);
@@ -34,11 +39,13 @@ namespace NightShelter
             {
                 result = "Finger Print Not Found!";
                 resultDiv.InnerHtml = result;
+                resultDiv.Attributes["class"] = "bg-danger";
             } else
             {
                 result = "Finger Print Found!";
                 showHistory(uid);
-                resultDiv.InnerHtml = detailJson;
+                resultDiv.InnerHtml = "Finger Print Found.";
+                resultDiv.Attributes["class"] = "bg-success";
             }
         }
 

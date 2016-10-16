@@ -101,6 +101,67 @@ namespace NightShelter
             return "Not Found";
         }
 
+        public static string verify_s(string firData, int gender, int fingerID)
+        {
+            string firTestData;
+
+            string connStr = WebConfigurationManager.ConnectionStrings["localConnection"].ConnectionString;
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            try
+            {
+                conn.Open();
+                string storeProc = "verifyProc";
+                MySqlCommand cmd = new MySqlCommand(storeProc, conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@f_gender", gender);
+                cmd.Parameters.AddWithValue("@f_fingerID", fingerID);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    string firFileName = rdr[0] + ".fir";
+                    string filePath = System.IO.Path.Combine(baseDirectory, firFileName);
+                    if (!System.IO.File.Exists(filePath))
+                        continue;
+                    using (System.IO.FileStream fs = System.IO.File.OpenRead(filePath))
+                    {
+                        System.IO.StreamReader sr = new System.IO.StreamReader(fs);
+                        string fUserID = sr.ReadLine();
+                        string fFirDataSize = sr.ReadLine();
+                        firTestData = sr.ReadLine();
+                        sr.Close();
+                    }
+                    Type BioBSPCOMM = Type.GetTypeFromProgID("BioBSPCOMM.BioBSP");
+                    object BioBSP = Activator.CreateInstance(BioBSPCOMM);
+                    object[] parameter = new object[2];
+                    parameter[0] = firData;
+                    parameter[1] = firTestData;
+                    BioBSPCOMM.InvokeMember("VerifyMatch", System.Reflection.BindingFlags.InvokeMethod, null, BioBSP, parameter);
+                    string errorCode = BioBSPCOMM.GetProperty("ErrorCode").GetValue(BioBSP, null).ToString();
+                    if (errorCode.Equals("0"))
+                    {
+                        string matchingResult = BioBSPCOMM.GetProperty("MatchingResult").GetValue(BioBSP, null).ToString();
+                        if (matchingResult.Equals("0"))
+                        {
+                            //message = "Matching failed ! Verification failed !";
+                        }
+                        else
+                        {
+                            //message = "Verification success !!!";
+                            return (string)rdr[0];
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //Error Message
+            }
+            conn.Close();
+            return "Not Found";
+        }
+
         internal static string createUIDFile(string firData)
         {
             string uid = getUID(32);

@@ -20,10 +20,10 @@ namespace NightShelter
                 string res = Request.QueryString["result"];
                 if (res.Equals("successful"))
                 {
-                    message = "Registration Successful !";
+                    message = "1";
                 } else
                 {
-                    message = "Unable to Register! Please try again!";
+                    message = "0";
                 }
                 string err = Request.QueryString["err"];
                 if (!err.Equals("None"))

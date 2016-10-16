@@ -43,7 +43,7 @@ namespace NightShelter
             ViewState["fingerID"] = fingerID;
             ViewState["location"] = location;
 
-            string uid = FingerPrint.verify(firData, gender.ToString(), fingerID.ToString());
+            string uid = FingerPrint.verify_s(firData, gender, fingerID);
 
             if(uid.Equals("Not Found"))
             {
